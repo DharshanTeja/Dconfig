@@ -1,34 +1,70 @@
+<div align="center">
+
+<img src="assets/icon.png" width="104" alt="Dconfig logo">
+
 # Dconfig
 
-**Edit your server's plugin configs in a browser, and see how they will look in game before you save.**
+**Edit your server's configs in a browser. See them the way players do.**
 
-Dconfig is a Paper plugin plus a web panel. You change any plugin's `.yml` files from a web page instead of an SSH window. MOTDs, chat formats, messages, tab lists and scoreboards are drawn the way players will see them, from your unsaved draft. Every change is backed up first, and you can give staff their own limited access.
+![Version](https://img.shields.io/badge/version-1.0.0-f5b942?style=flat-square)
+![Paper](https://img.shields.io/badge/Paper-26.2-4c8bf5?style=flat-square)
+![Java](https://img.shields.io/badge/Java-25-8a63d2?style=flat-square)
+![License](https://img.shields.io/badge/license-All%20Rights%20Reserved-555?style=flat-square)
 
-This repository is where **bugs, feature requests and questions** about Dconfig are tracked. If something is broken or missing, [open an issue](../../issues/new/choose).
+[Website](https://dconfig.in) &nbsp;·&nbsp; [Report a bug](../../issues/new?template=bug_report.yml) &nbsp;·&nbsp; [Request a feature](../../issues/new?template=feature_request.yml) &nbsp;·&nbsp; [All issues](../../issues)
 
----
+</div>
 
-## Download
+<br>
 
-- **Website:** https://dconfig.in (the panel, and the plugin jar with its version and SHA-256)
-- **CurseForge** and **Modrinth:** search for "Dconfig"
+Dconfig is a Paper plugin and a web panel. Change any plugin's `.yml` files from a browser instead of an SSH window, and watch MOTDs, chat formats, tab lists and scoreboards update as players will see them, **before** anything is saved.
 
-Current version: **1.0.0**. It needs **Paper 26.2** and **Java 25**. It is not tested on Spigot, Folia or other forks.
+This repository is the public home of Dconfig's **issue tracker**: bugs, feature requests and questions.
 
-## What it does
+<br>
 
-- **Three editors for every file.** Tree turns the comments in a file into help text and gives each setting a proper control. Form does the same for plugins that ship a `dconfig.yml`. Raw YAML is the file itself, with plain-English error checking and one-click fixes. Save is disabled while there are errors.
-- **Live previews** of MiniMessage text, `&` codes and gradients: MOTD, chat, messages, tab lists and scoreboards.
-- **Colour studio:** colour wheel, gradient builder, readability check.
-- **Safe saving:** the file is checked, a backup is written, then the file is replaced in one step. If someone changed it meanwhile, you are asked instead of losing their change. Earlier versions can be restored.
-- **Teams and roles:** owner, manager and viewer, each limited to the plugins you choose. Passwords and tokens are masked.
-- **In-game editor:** `/dconfig` opens dialog screens for plugins that ship a `dconfig.yml` schema (Java Edition).
-- **No port forwarding:** the plugin connects out to the panel.
+## Highlights
 
-## Set up
+|  |  |
+|---|---|
+| **See it first** | Live previews of MiniMessage text, `&` codes and gradients, drawn from your unsaved draft. |
+| **Safe by default** | Every save is checked, backed up and written in one step. Earlier versions are one click away. |
+| **Made for teams** | Owner, manager and viewer roles, limited to the plugins you choose. Secrets stay masked. |
+| **Private** | Your configs are end-to-end encrypted. The panel's relay cannot read them. |
+| **Plain-English YAML** | Errors are marked as you type, with one-click fixes. Save is off while there are errors. |
+| **Nothing to open** | The plugin connects out to the panel. No port forwarding. |
+
+<br>
+
+## How it works
+
+```mermaid
+flowchart LR
+    B["Your browser"] <-->|"end-to-end encrypted"| R["Relay<br/>forwards ciphertext only"]
+    R <-->|"end-to-end encrypted"| P["Dconfig plugin<br/>on your server"]
+```
+
+The plugin opens one outgoing connection to the panel. Your browser and the plugin agree on a key between themselves, and the relay only passes encrypted messages along. You confirm the server's fingerprint once, like an SSH host key, and your browser warns if it ever changes.
+
+<details>
+<summary><b>Exactly what leaves your server</b></summary>
+
+<br>
+
+Dconfig does nothing on the network until you paste a key into `web.yml`. After that it keeps one outgoing WebSocket open to the address in that file. There is no telemetry, no update check, no download and no code loaded from anywhere.
+
+- The panel is told the server key, the plugin's public identity key, the Dconfig and game versions, and who is signed in with which role. Like any web service it also sees connection details such as your server's IP address.
+- Only `.yml` files inside the plugin folders you list in `web.yml` can be opened. Never data folders, and never Dconfig's own key or identity file.
+- To turn it off, empty the `key:` line in `web.yml`.
+
+</details>
+
+<br>
+
+## Quick start
 
 1. Put `Dconfig.jar` in your `plugins` folder and start the server once.
-2. Open https://dconfig.in, sign in, press **Link a server** and copy the key. It is shown once.
+2. Open [dconfig.in](https://dconfig.in), sign in, press **Link a server** and copy the key. It is shown once.
 3. In `plugins/Dconfig/web.yml`, paste the key, set `url:` to the address the panel shows, and list the plugins to share:
 
    ```yaml
@@ -42,13 +78,15 @@ Current version: **1.0.0**. It needs **Paper 26.2** and **Java 25**. It is not t
 4. Run `/dconfig web reload`.
 5. The panel shows a short code. Compare it with `/dconfig web identity` and confirm it once.
 
-`/dconfig web help` prints these steps in game or in the console.
+Stuck? `/dconfig web help` prints these steps in game or in the console.
 
-## Commands and permission
+<br>
+
+## Commands
 
 | Command | What it does |
 |---|---|
-| `/dconfig` (aliases `/dcfg`, `/configui`) | Opens the in-game editor |
+| `/dconfig` &nbsp;(`/dcfg`, `/configui`) | Opens the in-game editor |
 | `/dconfig <plugin>` | Opens one plugin's settings |
 | `/dconfig reload` | Reloads Dconfig's own settings |
 | `/dconfig web help` | Panel address and setup steps |
@@ -58,48 +96,61 @@ Current version: **1.0.0**. It needs **Paper 26.2** and **Java 25**. It is not t
 
 Permission: `dconfig.admin` (default: operators).
 
-## What leaves your server
+<br>
 
-Dconfig does nothing on the network until you paste a key into `web.yml`. After that it keeps one outgoing WebSocket open to the address in that file. There is no telemetry, no update check, no download and no code loaded from anywhere.
+## Compatibility
 
-- Your configs are **end-to-end encrypted** between the plugin and your browser. The panel's relay only forwards ciphertext, so it cannot read your files.
-- The panel is told the server key, the plugin's public identity key, the Dconfig and game versions, and who is signed in with which role. Like any web service it also sees connection details such as your server's IP address.
-- Only `.yml` files inside the plugin folders you list in `web.yml` can be opened, never data folders, and never Dconfig's own key or identity file.
-- To turn it off, empty the `key:` line in `web.yml`.
+| | |
+|---|---|
+| Server | **Paper 26.2** (not tested on Spigot, Folia or other forks) |
+| Java | **25** |
+| In-game editor | Java Edition. Bedrock players can use the web panel. |
+| Support | The **latest release** only. Please update before reporting. |
 
-## Reporting a problem
+<br>
 
-Please use the **Bug report** form. A good report lets me reproduce the problem without guessing. It needs:
+## Support
+
+**Found a bug?** [Open a bug report](../../issues/new?template=bug_report.yml). **Missing something?** [Request a feature](../../issues/new?template=feature_request.yml). Please search the [existing issues](../../issues) first, and add details there if your problem is already reported.
+
+<details>
+<summary><b>What makes a good bug report</b></summary>
+
+<br>
 
 1. **Dconfig version:** the output of `/version Dconfig`.
 2. **Server:** the output of `/version`, and your Java version.
 3. **What you did, what you expected, what happened.** Numbered steps are best.
-4. **For connection problems:** the output of `/dconfig web status`, and the lines from the server log that mention Dconfig.
-5. **For panel problems:** your browser and its version, and a screenshot if it is visual.
-6. **For a file that saved wrongly:** the plugin and file name, and the lines that changed (a "before" and "after" is enough, not the whole file).
+4. **Connection problems:** the output of `/dconfig web status`, and the server log lines that mention Dconfig.
+5. **Panel problems:** your browser and its version, and a screenshot if it is visual.
+6. **A file that saved wrongly:** the plugin and file name, and the lines that changed. A "before" and "after" is enough, not the whole file.
 
-> **Never post your key.** Do not paste `plugins/Dconfig/web.yml`, `identity.key`, or any line starting with `key:` or `dcw_`. Remove passwords, tokens and database URLs from logs and configs too. The fingerprint code from `/dconfig web identity` is safe to share.
+</details>
 
-Before you open a new one, search the existing issues: your problem may already be reported. Add details there instead of opening a duplicate.
+> [!WARNING]
+> **Never post your key.** Do not paste `plugins/Dconfig/web.yml`, `identity.key`, or any line starting with `key:` or `dcw_`. Remove passwords, tokens and database URLs from logs and configs too. The fingerprint from `/dconfig web identity` is safe to share.
 
-### Feature requests
+> [!IMPORTANT]
+> **Security problems are not public issues.** If you can read another server's files, bypass a role, or similar, use **Security → Report a vulnerability** on this repository to tell me privately.
 
-Use the **Feature request** form. Describe the problem you are trying to solve first, then your idea. Requests that say what you were doing and why it was hard are much easier to act on than "add X".
+I read every issue. There is no guaranteed reply time. Issues are labelled `bug`, `enhancement`, `question` or `needs info`; a `needs info` issue with no answer for 30 days may be closed, and you can reopen it with the details.
 
-### Security problems
-
-Do **not** open a public issue for a security problem (for example, a way to read another server's files, or to bypass roles). Use **Security → Report a vulnerability** on this repository's page to tell me privately.
-
-### What to expect
-
-I read every issue. There is no guaranteed reply time. Issues are labelled `bug`, `enhancement`, `question` or `needs info`; an issue with `needs info` that gets no answer for 30 days may be closed, and you can reopen it with the details.
-
-## Supported versions
-
-Only the **latest release** is supported. If you are on an older one, update first and check whether the problem is still there.
+<br>
 
 ## Made with AI help
 
 Dconfig was designed and directed by its author, with a large part of the code written with the help of an AI assistant (Claude by Anthropic), then tested and reviewed on a live server.
 
-<!-- Add your license here once you have chosen it. -->
+<br>
+
+## License
+
+**Copyright © 2026 Dconfig. All Rights Reserved.**
+
+Dconfig is proprietary software. You may download the official release and run it on servers you own or administer, and you may post issues here. You may not copy, modify, redistribute, re-upload or sell Dconfig or any part of it, or use its name or logo, without written permission. See [LICENSE](LICENSE) for the full notice.
+
+<br>
+
+<div align="center">
+<sub>Dconfig is an independent project and is not affiliated with Mojang, Microsoft or PaperMC.</sub>
+</div>
